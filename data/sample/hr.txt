@@ -1,0 +1,9 @@
+Human Resources Department
+
+The HR department manages employee onboarding, benefits, leave policies,
+performance management, and internal HR procedures.
+
+HR documentation may contain confidential employee and organizational
+information.
+
+Only authorized HR employees should access confidential HR documentation.

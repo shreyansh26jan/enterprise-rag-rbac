@@ -1,0 +1,40 @@
+# Backend
+fastapi 
+uvicorn[standard] 
+python-dotenv
+
+
+# Database
+sqlalchemy 
+psycopg2-binary 
+alembic
+
+# Authentication/security
+python-jose[cryptography] 
+passlib[bcrypt] 
+python-multipart
+
+# RAG
+langchain 
+langchain-community 
+langchain-text-splitters
+
+# Vector/database integration
+pgvector
+
+# Testing
+pytest 
+httpx
+
+# | Component     | Purpose                             |
+# | ------------- | ----------------------------------- |
+# | FastAPI       | Backend/API                         |
+# | PostgreSQL    | Users, roles, permissions, metadata |
+# | pgvector      | Vector search                       |
+# | SQLAlchemy    | Database ORM                        |
+# | Alembic       | Database migrations                 |
+# | LangChain     | RAG orchestration                   |
+# | python-jose   | JWT authentication                  |
+# | bcrypt        | Password hashing                    |
+# | pytest        | Testing                             |
+# | python-dotenv | `.env` configuration                |

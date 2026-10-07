@@ -1,0 +1,12 @@
+Engineering Department
+
+Project: Enterprise Search Platform
+
+The engineering team is responsible for maintaining the company's internal
+search infrastructure, APIs, data pipelines, and machine learning systems.
+
+The current platform uses PostgreSQL for structured data and vector search
+for semantic retrieval.
+
+Engineering employees can access engineering documentation and public
+company documentation.

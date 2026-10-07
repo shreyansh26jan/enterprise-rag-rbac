@@ -1,0 +1,43 @@
+# Virtual environment
+enterprise_rag_env/
+venv/
+.env/
+
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data
+data/documents/*
+data/raw/*
+data/processed/*
+
+# Temporary files
+*.tmp
+*.temp
+
+#PersonalCheckList
+CHECKLIST.md
