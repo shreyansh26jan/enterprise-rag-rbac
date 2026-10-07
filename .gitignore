@@ -40,4 +40,5 @@ data/processed/*
 *.temp
 
 #PersonalCheckList
+checklist_daywise/
 CHECKLIST.md
