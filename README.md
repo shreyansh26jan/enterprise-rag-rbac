@@ -60,6 +60,7 @@ Planned security capabilities include:
 
 ## Current Status
 
+
 ### Day 1 — Project & Infrastructure Setup
 
 * FastAPI project structure created
