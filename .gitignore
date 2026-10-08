@@ -42,3 +42,4 @@ data/processed/*
 #PersonalCheckList
 checklist_daywise/
 CHECKLIST.md
+SQL_commands/
