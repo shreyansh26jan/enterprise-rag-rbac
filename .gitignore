@@ -43,3 +43,5 @@ data/processed/*
 checklist_daywise/
 CHECKLIST.md
 SQL_commands/
+check_vector.py
+test_vector_search_manual.py

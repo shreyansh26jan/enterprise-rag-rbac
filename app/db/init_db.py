@@ -1,6 +1,12 @@
 from app.db.database import Base, engine
-from app.models.rbac import User, Role, Permission, Document
-
+# from app.models.rbac import User, Role, Permission, Document
+from app.models.rbac import (
+    User,
+    Role,
+    Permission,
+    Document,
+    DocumentChunk,
+)
 
 def init_db():
     Base.metadata.create_all(bind=engine)

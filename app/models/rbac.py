@@ -9,7 +9,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
-
+from pgvector.sqlalchemy import Vector
 
 # Many-to-many relationship:
 # users <-> roles
@@ -106,4 +106,38 @@ class Document(Base):
         "Role",
         secondary=document_roles,
         back_populates="documents",
+    )
+
+    chunks = relationship(
+    "DocumentChunk",
+    back_populates="document",
+    cascade="all, delete-orphan",
+)
+
+
+class DocumentChunk(Base):
+    __tablename__ = "document_chunks"
+
+    id = Column(Integer, primary_key=True)
+
+    document_id = Column(
+        Integer,
+        ForeignKey("documents.id"),
+        nullable=False,
+    )
+
+    content = Column(
+        String,
+        nullable=False,
+    )
+
+    chunk_index = Column(
+        Integer,
+        nullable=False,
+    )
+    embedding = Column(Vector(1024), nullable=True)
+
+    document = relationship(
+        "Document",
+        back_populates="chunks",
     )

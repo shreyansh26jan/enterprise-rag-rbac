@@ -18,6 +18,7 @@ python-multipart
 langchain 
 langchain-community 
 langchain-text-splitters
+langchain-ollama
 
 # Vector/database integration
 pgvector

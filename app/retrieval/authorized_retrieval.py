@@ -1,14 +1,15 @@
 from sqlalchemy.orm import Session
 
-from app.models.rbac import User, Document, Role
+from app.models.rbac import User, Role, Document, DocumentChunk
 
 
-def get_authorized_documents(
+def get_authorized_chunks(
     db: Session,
     username: str,
 ):
     """
-    Return only documents that the user is authorized to access.
+    Return only chunks belonging to documents
+    that the user is authorized to access.
     """
 
     user = (
@@ -28,16 +29,15 @@ def get_authorized_documents(
     if not role_ids:
         return []
 
-    documents = (
-        db.query(Document)
-        .join(Document.roles)
+    chunks = (
+        db.query(DocumentChunk)
+        .join(Document)
         .filter(
             Document.roles.any(
-                Role.id.in_(role_ids) #id__in=role_ids
+                Role.id.in_(role_ids)
             )
         )
-        .distinct()
         .all()
     )
 
-    return documents
+    return chunks

@@ -112,3 +112,42 @@ RAG Retrieval
 
 
 The next stage will integrate RBAC directly with the retrieval layer so that unauthorized documents are excluded from the retrieval candidate set before they can enter the LLM context.
+
+
+## Day 3: Ingestion and Vector Retrieval
+
+### Features
+
+* Text ingestion and chunking with configurable chunk size and overlap.
+* Embedding generation using Ollama's `mxbai-embed-large` model.
+* Storage of 1,024-dimensional embeddings in PostgreSQL using pgvector.
+* Cosine-similarity search over document chunks.
+* Role-based authorization applied within the retrieval query.
+* Automated tests covering document access boundaries and invalid queries.
+
+### Run ingestion
+
+```bash
+python -m app.ingestion.run_ingestion
+```
+
+### Generate embeddings
+
+Ensure Ollama is running and `mxbai-embed-large` is available.
+
+```bash
+python -m app.ingestion.embed_chunks
+```
+
+### Run tests
+
+```bash
+pytest -v
+```
+
+### Current limitations
+
+* Sample documents are plain text; PDF and Confluence ingestion are future extensions.
+* Keyword and hybrid search are not implemented yet.
+* LLM answer generation and prompt-injection defenses remain future tasks.
+* Database schema changes are currently applied manually; migrations should be added as the project matures.
