@@ -43,6 +43,12 @@ data/processed/*
 checklist_daywise/
 CHECKLIST.md
 SQL_commands/
+sample_test_Del.py
+
+
+#test files in project root
 check_vector.py
 test_vector_search_manual.py
 test_hybrid_demo.py
+test_llm_demo.py
+test_rag_demo.py

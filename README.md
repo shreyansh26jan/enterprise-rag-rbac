@@ -196,3 +196,36 @@ The current test suite passes all 37 tests.
 * Keyword retrieval currently uses substring matching with PostgreSQL `ILIKE`.
 * Hybrid ranking uses a heuristic weighted score; the scores have not been calibrated against a relevance evaluation dataset.
 * PDF and Confluence ingestion, production identity integration, and the final answer-generation pipeline remain separate development tasks.
+
+
+
+## Day 5: RAG Generation Pipeline
+
+Implemented the initial Retrieval-Augmented Generation (RAG) pipeline to generate answers from documents retrieved according to user permissions.
+
+### Features Implemented
+
+* **Context Builder:** Converts retrieved document chunks into a structured context containing source document names and content.
+* **Prompt Construction:** Builds prompts using the user's question and retrieved context, with instructions to answer using the available information and avoid unsupported claims.
+* **LLM Integration:** Integrated a locally hosted language model using Ollama and LangChain's `ChatOllama` interface.
+* **Configurable Model:** Configured the LLM model through the `LLM_MODEL` environment variable.
+* **RAG Service:** Implemented an end-to-end service that combines hybrid retrieval, context construction, prompt generation, and LLM-based answer generation.
+* **Source Metadata:** Returns source document names separately from the generated answer.
+* **Access-Controlled Retrieval:** Ensures that the generation pipeline receives results from the existing RBAC-aware hybrid search.
+* **Empty-Query Validation:** Rejects empty or whitespace-only questions.
+* **No-Results Handling:** Returns a fallback response without invoking the LLM when no relevant authorized documents are retrieved.
+
+### Testing
+
+* Added unit tests for context construction, prompt generation, LLM configuration, and RAG service validation.
+* Added integration tests covering authorized HR retrieval, exclusion of unauthorized HR content for engineering users, and handling of unknown users.
+* Verified that the existing authorization, vector search, keyword search, and hybrid search tests continue to pass.
+
+**Test Result:** 55 tests passed.
+
+### Current Limitations
+
+* Hybrid-search relevance tuning and score-threshold optimization are deferred to a later stage.
+* The sample HR document describes leave policies but does not specify actual leave entitlements or procedures. The assistant must not invent those details.
+* Prompt-based defenses against prompt injection are preliminary and are not a complete security boundary.
+* The current pipeline uses a local Ollama model; answer quality and generation behavior require further evaluation.
