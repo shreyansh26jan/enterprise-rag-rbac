@@ -229,3 +229,62 @@ Implemented the initial Retrieval-Augmented Generation (RAG) pipeline to generat
 * The sample HR document describes leave policies but does not specify actual leave entitlements or procedures. The assistant must not invent those details.
 * Prompt-based defenses against prompt injection are preliminary and are not a complete security boundary.
 * The current pipeline uses a local Ollama model; answer quality and generation behavior require further evaluation.
+
+
+
+## Day 6: FastAPI RAG API
+
+The project exposes a REST API for querying internal company knowledge through a Retrieval-Augmented Generation (RAG) pipeline.
+
+### Start the API
+
+Activate the virtual environment and run:
+
+```powershell
+uvicorn app.main:app --reload
+```
+
+The API is available at `http://127.0.0.1:8000`.
+
+Interactive API documentation: `http://127.0.0.1:8000/docs`
+
+### Endpoints
+
+| Method | Endpoint            | Description         |
+| ------ | ------------------- | ------------------- |
+| GET    | `/`                 | API welcome message |
+| GET    | `/health`           | Health check        |
+| POST   | `/api/v1/rag/query` | Submit a RAG query  |
+
+### Example request
+
+```json
+{
+  "username": "anjali",
+  "query": "What is the employee leave policy?",
+  "top_k": 3
+}
+```
+
+### Example response
+
+```json
+{
+  "answer": "See the relevant HR documentation.",
+  "sources": [
+    "HR Policy"
+  ]
+}
+```
+
+The answer and sources above are illustrative; actual results depend on retrieved documents and the configured language model.
+
+### Security
+
+* Queries use the existing RBAC-aware hybrid retrieval pipeline.
+* Document authorization is applied before retrieved content reaches the generation stage.
+* Unknown users receive no document results under the current authorization implementation.
+* Request validation rejects empty or whitespace-only usernames and queries.
+* `top_k` is restricted to the range 1–10.
+
+**Authentication note:** The current API accepts a username in the request body. This is suitable for development and testing, but it does not authenticate the caller. Production deployment requires verified identity, server-side user resolution, and appropriate authentication and authorization controls.

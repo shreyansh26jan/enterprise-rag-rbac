@@ -1,4 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app.api.schemas import RAGQueryRequest, RAGQueryResponse
+from app.db.database import get_db
+from app.generation.rag_service import answer_question
+
+
 
 app = FastAPI(
     title="Enterprise RAG with RBAC",
@@ -19,3 +25,11 @@ def health_check():
     return {
         "status": "healthy"
     }
+
+@app.post("/api/v1/rag/query", response_model=RAGQueryResponse)
+def rag_query( request: RAGQueryRequest, db: Session = Depends(get_db), ):
+    try:
+        result = answer_question( db=db, username=request.username.strip(), question=request.query, top_k=request.top_k, )
+        return result
+    except ValueError as exc:
+        raise HTTPException( status_code=400, detail=str(exc), ) from exc
