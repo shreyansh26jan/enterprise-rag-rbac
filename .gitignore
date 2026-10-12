@@ -52,3 +52,4 @@ test_vector_search_manual.py
 test_hybrid_demo.py
 test_llm_demo.py
 test_rag_demo.py
+test_jwt_authentication.py

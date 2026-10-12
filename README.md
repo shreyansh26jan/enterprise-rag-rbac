@@ -288,3 +288,105 @@ The answer and sources above are illustrative; actual results depend on retrieve
 * `top_k` is restricted to the range 1–10.
 
 **Authentication note:** The current API accepts a username in the request body. This is suitable for development and testing, but it does not authenticate the caller. Production deployment requires verified identity, server-side user resolution, and appropriate authentication and authorization controls.
+
+
+## Day 7: Authentication & Trusted Identity
+
+The API uses JSON Web Tokens (JWT) with HTTP Bearer authentication to establish a trusted user identity before processing RAG queries.
+
+### Authentication Flow
+
+1. The client sends a request with a JWT in the `Authorization` header.
+2. The authentication dependency validates the token signature and expiration.
+3. The authenticated username is extracted from the token's `sub` claim.
+4. The trusted username is passed to the RAG service.
+5. The existing Role-Based Access Control (RBAC) layer restricts retrieval to documents the user is authorized to access.
+6. The LLM generates an answer using the authorized retrieval results.
+
+**Security principle:** The API does not rely on a username supplied in the RAG request body. User identity is derived from the validated JWT, preventing clients from selecting another user's identity through request data.
+
+### API Authentication
+
+Endpoint:
+
+`POST /api/v1/rag/query`
+
+Authentication header:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+Example request body:
+
+```json
+{
+  "query": "What is the employee leave policy?",
+  "top_k": 3
+}
+```
+
+The request body contains the query and retrieval limit; it does not contain a username.
+
+### Token Configuration
+
+Configure the following environment variables:
+
+| Variable                 | Description                                  |
+| ------------------------ | -------------------------------------------- |
+| `JWT_SECRET_KEY`         | Secret used to sign and verify JWTs          |
+| `JWT_ALGORITHM`          | JWT signing algorithm, configured as `HS256` |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Token lifetime in minutes                    |
+
+Keep the JWT secret in the local `.env` file. Never commit secrets to version control. The `.env.example` file should contain placeholder values only.
+
+For local development, the application provides a token-generation utility. In a production deployment, tokens should normally be issued by a trusted identity provider, such as Microsoft Entra ID, Okta, or Keycloak.
+
+### Authentication Error Handling
+
+| Scenario                           |                HTTP status |
+| ---------------------------------- | -------------------------: |
+| Missing authentication credentials |         `401 Unauthorized` |
+| Invalid token                      |         `401 Unauthorized` |
+| Expired token                      |         `401 Unauthorized` |
+| Invalid request data               | `422 Unprocessable Entity` |
+
+### Security Testing
+
+The automated test suite verifies:
+
+* Requests without authentication are rejected.
+* Invalid, expired, and incorrectly signed JWTs are rejected.
+* The username extracted from a valid token is used by the RAG service.
+* A username supplied in the request body cannot override the authenticated identity.
+* Existing RBAC, authorized retrieval, hybrid search, and RAG functionality remain intact.
+
+### Security Architecture
+
+```text
+Client Request
+      |
+      v
+JWT Authentication
+(app/security/)
+      |
+      v
+Trusted User Identity
+      |
+      v
+RBAC Authorization
+(app/auth/)
+      |
+      v
+Authorized Document Retrieval
+(app/retrieval/)
+      |
+      v
+RAG Generation
+(app/generation/)
+      |
+      v
+Answer + Sources
+```
+
+Authentication establishes **who the user is**; RBAC determines **which information the user may access**. Both layers are required for secure enterprise knowledge retrieval.

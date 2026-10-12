@@ -13,6 +13,7 @@ alembic
 python-jose[cryptography] 
 passlib[bcrypt] 
 python-multipart
+PyJWT>=2.10,<3 #JSON Web Token
 
 # RAG
 langchain 

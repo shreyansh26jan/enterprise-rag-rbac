@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class RAGQueryRequest(BaseModel):
-    username: str = Field(..., min_length=1)
+    # username: str = Field(..., min_length=1)
     query: str = Field(..., min_length=1)
     top_k: int = Field(default=3, ge=1, le=10)
 
@@ -12,7 +12,7 @@ class RAGQueryRequest(BaseModel):
       2. Leading and trailing whitespace is removed.
       3. top_k remains restricted to 1–10."""
 
-    @field_validator("username", "query") 
+    @field_validator("query") #"username",
     @classmethod 
     def reject_blank_strings(cls, value: str) -> str: 
         value = value.strip() 
@@ -22,7 +22,7 @@ class RAGQueryRequest(BaseModel):
 
 # Request JSON:
 # {
-#     "username": "anjali",
+#     "username": "anjali",   ### NOT PRESENT AFTER APPLYING JWT
 #     "query": "What is the employee leave policy?",
 #     "top_k": 3
 # }    
