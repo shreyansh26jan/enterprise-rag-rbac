@@ -294,3 +294,83 @@ def test_token_signed_with_wrong_secret_is_rejected():
     )
 
     assert response.status_code == 401
+
+
+def test_token_without_subject_is_rejected():
+    payload = {
+        "iat": datetime.now(timezone.utc),
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=30),
+    }
+
+    token = jwt.encode(
+        payload,
+        JWT_SECRET_KEY,
+        algorithm=JWT_ALGORITHM,
+    )
+
+    response = client.post(
+        "/api/v1/rag/query",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"query": "Leave policy"},
+    )
+
+    assert response.status_code == 401
+
+
+def test_token_with_blank_subject_is_rejected():
+    payload = {
+        "sub": "   ",
+        "iat": datetime.now(timezone.utc),
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=30),
+    }
+
+    token = jwt.encode(
+        payload,
+        JWT_SECRET_KEY,
+        algorithm=JWT_ALGORITHM,
+    )
+
+    response = client.post(
+        "/api/v1/rag/query",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"query": "Leave policy"},
+    )
+
+    assert response.status_code == 401
+
+
+
+def test_token_without_expiration_is_rejected():
+    payload = {
+        "sub": "anjali",
+        "iat": datetime.now(timezone.utc),
+    }
+    token = jwt.encode(
+        payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM
+    )
+
+    response = client.post(
+        "/api/v1/rag/query",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"query": "Leave policy"},
+    )
+
+    assert response.status_code == 401
+
+
+def test_token_without_issued_at_is_rejected():
+    payload = {
+        "sub": "anjali",
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=30),
+    }
+    token = jwt.encode(
+        payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM
+    )
+
+    response = client.post(
+        "/api/v1/rag/query",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"query": "Leave policy"},
+    )
+
+    assert response.status_code == 401

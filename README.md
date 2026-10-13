@@ -390,3 +390,71 @@ Answer + Sources
 ```
 
 Authentication establishes **who the user is**; RBAC determines **which information the user may access**. Both layers are required for secure enterprise knowledge retrieval.
+
+
+
+## Day 8: Prompt-Injection Defenses and Authentication
+
+The RAG pipeline applies defense-in-depth measures to reduce prompt-injection risks.
+
+### Implemented safeguards
+
+* **Explicit trust boundaries:** The system prompt identifies retrieved document content as untrusted data.
+* **Instruction isolation:** The LLM is instructed not to follow commands embedded in retrieved documents or allow them to override system instructions.
+* **RBAC enforcement:** Document retrieval remains subject to the existing authorization layer. A user query cannot grant additional permissions.
+* **Regression testing:** Tests cover malicious document content, attempted authorization manipulation, and prompt construction through the RAG service.
+* **Isolated adversarial fixture:** `data/test_documents/prompt_injection.txt` contains intentionally malicious test content and is kept separate from the normal sample dataset.
+
+### Security limitations
+
+Prompt instructions alone cannot guarantee immunity to prompt injection. These measures reduce risk but do not replace authorization enforcement, output validation, or additional adversarial evaluation.
+
+The adversarial fixture is not part of the normal ingestion dataset unless explicitly ingested by a test or development workflow.
+
+### JWT-Based Authentication
+
+The API uses JSON Web Tokens (JWT) to authenticate requests to protected endpoints.
+
+* **Bearer token authentication:** Protected endpoints require a valid JWT in the `Authorization` header.
+* **Signature validation:** Tokens are verified using the configured signing algorithm and secret key.
+* **Required claims:** Tokens must contain `sub` (subject), `iat` (issued at), and `exp` (expiration).
+* **Expiration validation:** Expired tokens are rejected.
+* **Subject validation:** Missing, invalid, or blank usernames are rejected.
+* **Identity integrity:** The authenticated username is extracted from the validated token rather than trusted from the request body.
+* **Error handling:** Missing credentials, invalid tokens, expired tokens, and invalid claims produce HTTP 401 responses.
+
+### Role-Based Access Control (RBAC)
+
+Authentication and authorization are separate responsibilities:
+
+* **Authentication** verifies the user's identity through the JWT.
+* **Authorization** determines which documents the authenticated user may access.
+* Document retrieval applies authorization restrictions before retrieved content is passed to the generation layer.
+* Users without permitted documents must not receive restricted document content.
+* A valid token alone does not grant access to every document.
+
+### Prompt-Injection Defenses
+
+Retrieved documents and user questions are treated as untrusted input.
+
+* The RAG system prompt establishes explicit security and grounding rules.
+* Instructions embedded in retrieved documents must be treated as document content, not as system or developer instructions.
+* Retrieved content cannot grant permissions, change the authenticated user's identity, or override RBAC.
+* Answers should use retrieved context only and avoid inventing unsupported information.
+* The assistant should indicate when available documents do not contain sufficient information to answer a question.
+* Source document names are included in generated answers where applicable.
+* Malicious prompt-injection content is included in isolated test documents to validate defensive behavior.
+
+**Security note:** Prompt instructions are a defense-in-depth measure, not a complete guarantee against prompt injection. Authorization must be enforced independently in the retrieval and data-access layers.
+
+### Security Test Coverage
+
+Automated tests cover:
+
+* Missing authentication credentials and invalid tokens.
+* Expired tokens and tokens signed with an incorrect secret.
+* Tokens missing required claims or containing invalid subjects.
+* Preventing request-body fields from overriding the authenticated identity.
+* Input validation and API error handling.
+* Role-based document access and restrictions.
+* Prompt-injection handling and preservation of retrieval authorization boundaries.

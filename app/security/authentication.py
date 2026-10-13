@@ -47,6 +47,7 @@ def decode_access_token(token: str) -> str:
         token,
         JWT_SECRET_KEY,
         algorithms=[JWT_ALGORITHM],
+        options={ "require": ["sub", "iat", "exp"], },
     )
 
     username = payload.get("sub")
