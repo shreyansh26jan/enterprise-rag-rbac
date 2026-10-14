@@ -60,11 +60,19 @@ def test_hr_user_gets_answer_with_authorized_sources(db, monkeypatch):
         "Employees should consult the HR leave policy."
     )
     assert result["sources"]
-    assert "HR Policy" in result["sources"]
+    # assert "HR Policy" in result["sources"]
+    assert set(result["sources"]) & {
+    "HR Policy",
+    "IIMA HR Policy Manual 2026",
+}
 
     # The HR document must be available to the authorized user's prompt.
     assert len(captured_prompts) == 1
-    assert "HR Policy" in captured_prompts[0]
+    # assert "HR Policy" in captured_prompts[0]
+    assert (
+    "HR Policy" in captured_prompts[0]
+    or "IIMA HR Policy Manual 2026" in captured_prompts[0]
+)
 
 
 def test_engineer_prompt_excludes_hr_content(db, monkeypatch):

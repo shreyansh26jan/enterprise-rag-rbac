@@ -25,7 +25,12 @@ def test_hr_manager_cannot_retrieve_engineering(db):
     names = document_names(results)
 
     assert "Engineering Architecture" not in names
-    assert names <= {"HR Policy", "Company Handbook"}
+    # assert names <= {"HR Policy", "Company Handbook"}
+    assert names <= {
+    "HR Policy",
+    "IIMA HR Policy Manual 2026",
+    "Company Handbook",
+}
 
 
 def test_engineer_cannot_retrieve_hr_policy(db):

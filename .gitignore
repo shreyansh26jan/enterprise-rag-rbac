@@ -42,7 +42,7 @@ data/processed/*
 #PersonalCheckList
 checklist_daywise/
 CHECKLIST.md
-SQL_commands/
+Commands/
 sample_test_Del.py
 
 
@@ -53,3 +53,4 @@ test_hybrid_demo.py
 test_llm_demo.py
 test_rag_demo.py
 test_jwt_authentication.py
+test_page_number_add_in_db.py

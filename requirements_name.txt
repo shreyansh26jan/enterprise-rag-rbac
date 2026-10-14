@@ -3,6 +3,9 @@ fastapi
 uvicorn[standard] 
 python-dotenv
 
+#ingestion/pdf gen lib
+pypdf
+reportlab
 
 # Database
 sqlalchemy 

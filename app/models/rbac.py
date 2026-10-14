@@ -135,6 +135,11 @@ class DocumentChunk(Base):
         Integer,
         nullable=False,
     )
+
+    page_number = Column(
+        Integer,
+        nullable=True,
+    )
     embedding = Column(Vector(1024), nullable=True)
 
     document = relationship(

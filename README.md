@@ -458,3 +458,27 @@ Automated tests cover:
 * Input validation and API error handling.
 * Role-based document access and restrictions.
 * Prompt-injection handling and preservation of retrieval authorization boundaries.
+
+
+## Day 9: PDF Document Ingestion
+
+The project supports ingestion of PDF documents alongside the existing text-based ingestion workflow.
+
+**Features**
+- Extracts text from PDFs using `pypdf`.
+- Splits extracted text using the shared chunking utility.
+- Stores chunks with document IDs, chunk indices, and page numbers.
+- Generates vector embeddings using the existing embedding pipeline.
+- Uses the existing document-level role-based access controls during retrieval.
+- Supports re-ingestion by replacing the document's previous chunks.
+
+**Workflow**
+
+1. Register the document in the database and assign its classification and authorized roles.
+2. Configure the document name and PDF path in `app/ingestion/run_pdf_ingestion.py`.
+3. Run `python -m app.ingestion.run_pdf_ingestion`.
+4. Generate embeddings for chunks that do not yet have embeddings with `python -m app.ingestion.embed_chunks`.
+
+**Testing**
+
+Run `pytest -q` to execute the test suite, including PDF extraction, page-number storage, re-ingestion, validation, and retrieval-related regression tests.

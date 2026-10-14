@@ -26,7 +26,11 @@ def test_hr_manager_can_hybrid_search_hr_content(db):
 
     names = document_names(results)
 
-    assert "HR Policy" in names
+    # assert "HR Policy" in names
+    assert names & {
+        "HR Policy",
+        "IIMA HR Policy Manual 2026",
+    }
     assert "Engineering Architecture" not in names
 
 
