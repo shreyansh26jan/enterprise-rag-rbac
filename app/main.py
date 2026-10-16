@@ -4,14 +4,14 @@ from app.api.schemas import RAGQueryRequest, RAGQueryResponse
 from app.db.database import get_db
 from app.generation.rag_service import answer_question
 from app.security.dependencies import get_current_username
-
+from app.api.business import router as business_router
 
 app = FastAPI(
     title="Enterprise RAG with RBAC",
     description="Secure internal knowledge assistant",
     version="0.1.0",
 )
-
+app.include_router(business_router)
 
 @app.get("/")
 def root():

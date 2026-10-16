@@ -7,6 +7,11 @@ from app.models.rbac import (
     Document,
     DocumentChunk,
 )
+from app.models.business import (
+    Employee,
+    Project,
+    Expense,
+)
 
 def init_db():
     Base.metadata.create_all(bind=engine)

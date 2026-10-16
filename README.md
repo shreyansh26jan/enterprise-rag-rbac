@@ -482,3 +482,161 @@ The project supports ingestion of PDF documents alongside the existing text-base
 **Testing**
 
 Run `pytest -q` to execute the test suite, including PDF extraction, page-number storage, re-ingestion, validation, and retrieval-related regression tests.
+
+## Day 10: SQL Business Data Integration
+
+The application integrates structured business data stored in PostgreSQL with permission-controlled access through FastAPI. Authenticated users can query employee information, project information, project budgets, and departmental expense totals according to their assigned RBAC permissions.
+
+### Features
+
+- SQLAlchemy-based access to structured business data.
+- Role-based authorization for business queries.
+- Employee count and employee listing with optional department filtering.
+- Project listing with optional department and status filtering.
+- Separate authorization for sensitive project-budget information.
+- Departmental expense-total queries.
+- Response schemas that prevent sensitive fields from being exposed through standard endpoints.
+- Automated tests covering authentication, authorization, API responses, and business-query behavior.
+
+### Business Data Models
+
+The business data layer includes the following SQLAlchemy models:
+
+| Model | Description |
+|---|---|
+| `Employee` | Employee name, department, role, location, salary, and active status |
+| `Project` | Project name, department, status, and budget |
+| `Expense` | Employee reference, expense category, amount, and expense date |
+
+The `Expense` model has a foreign-key relationship to `Employee`.
+
+The development seed data provides sample employees across Engineering, Human Resources, and Finance, along with sample projects for testing business queries and access control.
+
+### Business API Endpoints
+
+All endpoints require a valid JWT bearer token.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/v1/business/employees/count` | Returns the employee count, optionally filtered by department |
+| `GET` | `/api/v1/business/employees` | Lists employees, optionally filtered by department |
+| `GET` | `/api/v1/business/projects` | Lists projects, optionally filtered by department and status |
+| `GET` | `/api/v1/business/projects/budgets` | Returns project information including budgets |
+| `GET` | `/api/v1/business/expenses/total` | Returns the expense total for a department |
+
+#### Query Parameters
+
+- `department`: Filters employee counts, employee listings, projects, or expense totals by department where supported.
+- `status`: Filters projects by status. The API maps this parameter to the service's `project_status` argument.
+
+Example requests:
+
+```http
+GET /api/v1/business/employees/count?department=Engineering
+GET /api/v1/business/employees?department=Engineering
+GET /api/v1/business/projects?department=Engineering&status=active
+GET /api/v1/business/projects/budgets
+GET /api/v1/business/expenses/total?department=Engineering
+```
+
+Include the JWT token in the request header:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+### Business Permissions and RBAC
+
+The following permissions control access to structured business data:
+
+| Permission | Purpose |
+|---|---|
+| `business:employee:read` | Read employee counts and employee listings |
+| `business:project:read` | Read project information without budget details |
+| `business:project:budget` | Access project-budget information |
+| `business:expense:read` | Read departmental expense totals |
+
+Permissions are assigned through the existing role-based access-control system.
+
+The seeded roles have the following business-data access:
+
+| Role | Employees | Projects | Project budgets | Expenses |
+|---|---|---|---|---|
+| `admin` | Yes | Yes | Yes | Yes |
+| `hr_manager` | Yes | Yes | No | No |
+| `engineer` | Yes | Yes | No | No |
+| `employee` | No | Yes | No | No |
+
+Authorization is enforced in the business service layer before the corresponding database query is executed. Requests without valid authentication are rejected, and authenticated users without the required permission receive HTTP `403 Forbidden`.
+
+### Sensitive Data Handling
+
+- Standard employee responses do not expose salary information.
+- Standard project responses do not expose project budgets.
+- Project-budget information is available only through the separately authorized budget endpoint.
+- Expense totals are protected by the `business:expense:read` permission.
+- Existing document-level RBAC and RAG authorization remain separate from business-data authorization.
+
+### Project Structure
+
+Relevant modules added or updated for structured business-data integration:
+
+```text
+app/
+├── api/
+│   ├── business.py
+│   └── business_schemas.py
+├── auth/
+│   └── business_authorization.py
+├── db/
+│   ├── database.py
+│   └── seed.py
+├── models/
+│   ├── business.py
+│   └── rbac.py
+└── sql/
+    ├── business_queries.py
+    └── business_service.py
+
+alembic/
+└── versions/
+    └── 17e15da37cb0_add_expense_employee_foreign_key.py
+
+tests/
+├── test_business_api.py
+├── test_business_authorization.py
+├── test_business_queries.py
+└── test_business_service.py
+```
+
+The existing authentication, document ingestion, hybrid retrieval, generation, and RAG API modules remain part of the application.
+
+### Database Migrations
+
+Database schema changes are managed with Alembic.
+
+Apply pending migrations:
+
+```powershell
+alembic upgrade head
+```
+
+The business-data migration establishes the foreign-key relationship between expenses and employees.
+
+### Running the Tests
+
+Activate the project virtual environment and run the full test suite:
+
+```powershell
+.\enterprise_rag_venv\Scripts\Activate.ps1
+pytest -q
+```
+
+Run the business API tests separately:
+
+```powershell
+pytest -q tests/test_business_api.py
+```
+
+The Day 10 implementation was verified with **140 passing tests**, including the new business API tests.
+
