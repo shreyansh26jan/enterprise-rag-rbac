@@ -100,6 +100,8 @@ class Document(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
     source = Column(String(100), nullable=False)
+    source_id = Column(String(255), nullable=True)
+    source_url = Column(String(1000), nullable=True)
     classification = Column(String(50), nullable=False)
 
     roles = relationship(

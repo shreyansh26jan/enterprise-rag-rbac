@@ -54,3 +54,4 @@ test_llm_demo.py
 test_rag_demo.py
 test_jwt_authentication.py
 test_page_number_add_in_db.py
+test_api_all_path.py

@@ -5,6 +5,8 @@ from app.db.database import get_db
 from app.generation.rag_service import answer_question
 from app.security.dependencies import get_current_username
 from app.api.business import router as business_router
+from app.api.document_access import router as document_access_router
+
 
 app = FastAPI(
     title="Enterprise RAG with RBAC",
@@ -12,6 +14,8 @@ app = FastAPI(
     version="0.1.0",
 )
 app.include_router(business_router)
+app.include_router(document_access_router)
+
 
 @app.get("/")
 def root():

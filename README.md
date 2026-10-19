@@ -640,3 +640,112 @@ pytest -q tests/test_business_api.py
 
 The Day 10 implementation was verified with **140 passing tests**, including the new business API tests.
 
+## Day 11: Document Access Management
+
+Documents are protected by RBAC at retrieval time. A document with no assigned roles is not available to any authenticated user through authorized retrieval.
+
+Users with the `document:manage_access` permission can assign an existing RBAC role to a document through:
+
+```http
+POST /api/v1/documents/{document_id}/roles
+```
+
+Request body:
+
+```json
+{
+  "role_name": "engineer"
+}
+```
+
+Example response:
+
+```json
+{
+  "document_id": 14,
+  "document_name": "Engineering Architecture",
+  "role_name": "engineer",
+  "assigned": true
+}
+```
+
+### Access-control workflow
+
+```text
+Document ingestion
+       ↓
+Document created with no roles
+       ↓
+Admin / authorized user assigns role
+       ↓
+Document ↔ Role association
+       ↓
+Authorized retrieval filters by user's roles
+       ↓
+Only permitted document chunks reach RAG
+```
+
+The endpoint enforces `document:manage_access` and returns `403 Forbidden` to users without that permission.
+
+Repeated assignment of an already-assigned role is idempotent and returns `assigned: false`.
+
+### Confluence + RBAC
+
+Confluence pages are ingested into the existing `documents` and `document_chunks` tables.
+
+New Confluence documents are created without roles by default. Access is subsequently granted through the document access-management API.
+
+When an existing Confluence page is re-ingested:
+
+- The existing `Document` record is reused.
+- Page metadata and content are updated.
+- Existing chunks are replaced with the latest page content.
+- Existing document-role assignments are preserved.
+- Re-ingestion does not automatically grant or remove access.
+
+This separates **content synchronization** from **access-control management**.
+
+## Security and Authorization
+
+The RAG pipeline applies authorization before retrieval results are passed to the generation layer.
+
+The system ensures that:
+
+- JWT identity is used as the authenticated username.
+- Users can retrieve only documents associated with one of their roles.
+- Role-less documents are excluded from authorized retrieval.
+- Unauthorized users cannot modify document access.
+- Document content cannot grant or change authorization.
+- Retrieved document content is treated as untrusted data by the generation prompt.
+- Re-ingestion of a document does not silently change its RBAC assignments.
+
+### Current RBAC roles
+
+| Role | Example user | Scope |
+|---|---|---|
+| `admin` | `admin` | Full system access |
+| `hr_manager` | `anjali` | HR-related access |
+| `engineer` | `shreyansh` | Engineering-related access |
+| `employee` | `raj` | Employee/public access |
+
+Permissions include:
+
+- `document:read`
+- `document:search`
+- `document:upload`
+- `document:delete`
+- `document:manage_access`
+
+## Test Coverage
+
+The project currently has **165 automated tests passing**.
+
+Document-access tests cover:
+
+- Role-less documents are excluded from authorized retrieval.
+- Authorized users can assign document roles.
+- Users with an assigned role can retrieve the document.
+- Users without the assigned role cannot retrieve the document.
+- Unauthorized users cannot modify document access.
+- Repeated role assignment is idempotent.
+
